@@ -7,7 +7,7 @@ from .lstm import ActionClassificationLSTM, PoseDataModule, WINDOW_SIZE
 
 DATASET_PATH = 'content/RNN-HAR-2D-Pose-database/'
 
-def do_training_validation(window_size=34, batch_size=512, epochs=400, data_root=DATASET_PATH, learning_rate=0.0001, number_of_class=6):
+def do_training_validation(window_size=34, batch_size=512, epochs=400, data_root=DATASET_PATH, num_layers=2, learning_rate=0.001, number_of_class=6):
     pl.seed_everything(21)
     hidden_dim = 50
     num_layers = 1

@@ -33,55 +33,56 @@ def analyze_video(pose_detector, lstm_classifier, video_path):
 
     # open the video
     cap = cv2.VideoCapture(video_path)
-    # width of image frame
+
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    # height of image frame
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    # frames per second of the input video
+    # Get the frames per second of the video
     fps = int(cap.get(cv2.CAP_PROP_FPS))
-    # total number of frames in the video
+    # Get the total number of frames in the video
     tot_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    # video output codec
+    
+    # Define the codec for video output
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     # extract the file name from video path
     file_name = ntpath.basename(video_path)
     # video writer
-    vid_writer = cv2.VideoWriter('res_{}'.format(
-        file_name), fourcc, 30, (width, height))
-    # counter
+    vid_writer = cv2.VideoWriter('res_{}'.format(file_name), fourcc, 30, (width, height))
+
+    # Initialize a counter for the frames
     counter = 0
-    # buffer to keep the output of detectron2 pose estimation
+    # Initialize a buffer to store pose estimation results
     buffer_window = []
+    # Variable to store the action label
     label = None
-    # iterate through the video
+
+    # Process the video frame by frame
     while True:
-        # read the frame
         ret, frame = cap.read()
-        # return if end of the video
         if ret == False:
             break
-        # make a copy of the frame
+
         img = frame.copy()
+
+        # Process every (SKIP_FRAME_COUNT+1)th frame for efficiency
         if(counter % (SKIP_FRAME_COUNT+1) == 0):
-            # predict pose estimation on the frame
+            # Apply pose estimation to the frame
             outputs = pose_detector(frame)
             # filter the outputs with a good confidence score
             persons, pIndicies = filter_persons(outputs)
+
             if len(persons) >= 1:
                 # pick only pose estimation results of the first person.
-                # actually, we expect only one person to be present in the video.
                 p = persons[0]
                 # draw the body joints on the person body
                 draw_keypoints(p, img)
-                # input feature array for lstm
+
+                # Prepare the feature array for the LSTM classifier
                 features = []
-                # add pose estimate results to the feature array
                 for i, row in enumerate(p):
                     features.append(row[0])
                     features.append(row[1])
 
-                # append the feature array into the buffer
-                # not that max buffer size is 32 and buffer_window operates in a sliding window fashion
+                # Manage the buffer window for LSTM input
                 if len(buffer_window) < WINDOW_SIZE:
                     buffer_window.append(features)
                 else:
@@ -103,8 +104,8 @@ def analyze_video(pose_detector, lstm_classifier, video_path):
 
         # add predicted label into the frame
         if label is not None:
-            cv2.putText(img, 'Action: {}'.format(label),
-                        (int(width-400), height-50), cv2.FONT_HERSHEY_COMPLEX, 0.9, (102, 255, 255), 2)
+            cv2.putText(img, 'Action: {}'.format(label),(int(width-400), height-50), cv2.FONT_HERSHEY_COMPLEX, 0.9, (102, 255, 255), 2)
+            
         # increment counter
         counter += 1
         print ("counter", counter)
