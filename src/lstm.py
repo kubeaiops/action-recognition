@@ -107,14 +107,14 @@ class PoseDataModule(pl.LightningDataModule):
 #lstm classifier definition
 class ActionClassificationLSTM(pl.LightningModule):
     # initialise method
-    def __init__(self, input_features, hidden_dim, number_of_class, learning_rate=0.001):
+    def __init__(self, input_features, hidden_dim, number_of_class, num_layers=1, learning_rate=0.001):
         super().__init__()
         # save hyperparameters
         self.save_hyperparameters()
         # The LSTM takes word embeddings as inputs, and outputs hidden states
         # input_features = window frame counts
         # with dimensionality hidden_dim.
-        self.lstm = nn.LSTM(input_features, hidden_dim, batch_first=True)
+        self.lstm = nn.LSTM(input_features, hidden_dim, num_layers=num_layers, batch_first=True)
         # The linear layer that maps from hidden state space to classes
         self.linear = nn.Linear(hidden_dim, number_of_class)
         self.number_of_class = number_of_class
@@ -122,6 +122,7 @@ class ActionClassificationLSTM(pl.LightningModule):
         self.train_accs = []        
         self.validation_losses = []
         self.validation_accs = []
+        self.learning_rate = learning_rate
 
     def forward(self, x):
         # data is passed through the LSTM layer first, and then the output (specifically the last hidden state, ht[-1]) is passed through the linear layer.
@@ -219,7 +220,7 @@ class ActionClassificationLSTM(pl.LightningModule):
 
     def configure_optimizers(self):
         # adam optimiser
-        optimizer = optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
+        optimizer = optim.Adam(self.parameters(), lr=self.learning_rate)
         # learning rate reducer scheduler
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=10, min_lr=1e-15, verbose=True)
         # scheduler reduces learning rate based on the value of val_loss metric

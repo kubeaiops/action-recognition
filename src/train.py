@@ -10,8 +10,9 @@ DATASET_PATH = 'content/RNN-HAR-2D-Pose-database/'
 def do_training_validation(window_size=34, batch_size=512, epochs=400, data_root=DATASET_PATH, learning_rate=0.0001, number_of_class=6):
     pl.seed_everything(21)
     hidden_dim = 50
+    num_layers = 1
     # Initialize model and data module with provided arguments
-    model = ActionClassificationLSTM(window_size, hidden_dim, number_of_class, learning_rate=learning_rate)
+    model = ActionClassificationLSTM(window_size, hidden_dim, number_of_class, num_layers, learning_rate=learning_rate)
     data_module = PoseDataModule(data_root=data_root, batch_size=batch_size)
 
     # Callbacks

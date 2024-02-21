@@ -99,7 +99,7 @@ def analyze_video(pose_detector, lstm_classifier, video_path):
                     buffer_window.pop(0)
                     buffer_window.append(features)
                     label = LABELS[pred_index.numpy()[0]]
-                    #print("Label detected ", label)
+                    print("Label detected ", label)
 
         # add predicted label into the frame
         if label is not None:
@@ -107,6 +107,7 @@ def analyze_video(pose_detector, lstm_classifier, video_path):
                         (int(width-400), height-50), cv2.FONT_HERSHEY_COMPLEX, 0.9, (102, 255, 255), 2)
         # increment counter
         counter += 1
+        print ("counter", counter)
         # write the frame into the result video
         vid_writer.write(img)
         # compute the completion percentage
