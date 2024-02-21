@@ -2,3 +2,5 @@ venv/
 .DS_Store
 src/__pycache__/
 src/.DS_Store
+lightning_logs/
+content/

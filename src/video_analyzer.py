@@ -21,6 +21,10 @@ LABELS = {
 # configuring a higher value will result in better FPS (frames per rate), but accuracy might get impacted
 SKIP_FRAME_COUNT = 0
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu') # cpu only will be extremly slow
+#device = torch.device('mps' if torch.backends.mps.is_available() else device)
+#device = str(device)
+
 # analyse the video
 def analyze_video(pose_detector, lstm_classifier, video_path):
     # start time
@@ -85,6 +89,7 @@ def analyze_video(pose_detector, lstm_classifier, video_path):
                     model_input = torch.Tensor(np.array(buffer_window, dtype=np.float32))
                     # add extra dimension
                     model_input = torch.unsqueeze(model_input, dim=0)
+                    model_input = model_input.to(device)  # Move input data to device
                     # predict the action class using lstm
                     y_pred = lstm_classifier(model_input)
                     prob = F.softmax(y_pred, dim=1)
