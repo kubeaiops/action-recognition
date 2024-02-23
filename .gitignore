@@ -4,3 +4,7 @@ src/__pycache__/
 src/.DS_Store
 lightning_logs/
 content/
+UCF50/
+test_video/
+*.png
+*.h5

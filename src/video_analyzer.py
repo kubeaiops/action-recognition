@@ -108,11 +108,12 @@ def analyze_video(pose_detector, lstm_classifier, video_path):
             
         # increment counter
         counter += 1
-        print ("counter", counter)
+        
         # write the frame into the result video
         vid_writer.write(img)
         # compute the completion percentage
         percentage = int(counter*100/tot_frames)
+        print ("counter", counter, "percentage", percentage)
         # return the completion percentage
         yield "data:" + str(percentage) + "\n\n"
     analyze_done = time.time()
@@ -133,7 +134,6 @@ def stream_video(video_path):
         if ret == False:
             break
         out_frame = cv2.imencode('.jpg', frame)[1].tobytes()
-        result = (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' +
-                  out_frame + b'\r\n')
+        result = (b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' +out_frame + b'\r\n')
         yield result
     print("finished video streaming")
